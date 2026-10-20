@@ -1,2716 +1,1257 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Tux Autônomo 🐧</title>
-
-    <meta name="description"
-          content="Um pinguim Tux autônomo, divertido e interativo.">
-
-    <style>
-        /* =====================================================
-           TUX AUTÔNOMO
-           CSS isolado para facilitar a futura integração
-           com WordPress.
-        ===================================================== */
-
-        :root {
-            --tux-blue: #8bd8ff;
-            --tux-dark: #12283d;
-            --tux-ice: #eafaff;
-            --tux-white: #ffffff;
-            --tux-accent: #00a6d6;
-            --tux-shadow: rgba(0, 28, 55, 0.16);
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            padding: 24px 12px;
-            min-height: 100vh;
-
-            font-family: "Segoe UI", Arial, sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at 20% 10%,
-                    #ffffff 0,
-                    transparent 30%
-                ),
-                linear-gradient(
-                    180deg,
-                    #dff6ff,
-                    #a8e2fa 60%,
-                    #eafaff
-                );
-
-            color: var(--tux-dark);
-        }
-
-        button,
-        input {
-            font: inherit;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        button:focus-visible,
-        input:focus-visible {
-            outline: 3px solid #087ca7;
-            outline-offset: 3px;
-        }
-
-        .tux-app {
-            width: min(100%, 900px);
-            margin: 0 auto;
-        }
-
-        .tux-header {
-            text-align: center;
-            margin-bottom: 18px;
-        }
-
-        .tux-header h1 {
-            margin: 0 0 6px;
-            font-size: clamp(25px, 5vw, 38px);
-            color: #14334b;
-        }
-
-        .tux-header p {
-            margin: 0;
-            color: #345b73;
-            line-height: 1.5;
-        }
-
-        /* CENÁRIO */
-
-        .tux-stage {
-            position: relative;
-            overflow: hidden;
-
-            width: 100%;
-            min-height: 440px;
-
-            border: 3px solid rgba(255, 255, 255, 0.9);
-            border-radius: 26px;
-
-            background:
-                radial-gradient(
-                    ellipse at 20% 15%,
-                    rgba(255,255,255,.9),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    180deg,
-                    #a8e6ff 0%,
-                    #d8f5ff 65%,
-                    #f8fdff 100%
-                );
-
-            box-shadow: 0 15px 40px var(--tux-shadow);
-            isolation: isolate;
-        }
-
-        .tux-sky {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-        }
-
-        .tux-sun {
-            position: absolute;
-            top: 30px;
-            right: 45px;
-
-            width: 65px;
-            height: 65px;
-
-            border-radius: 50%;
-
-            background: #fff8bf;
-            box-shadow: 0 0 45px rgba(255, 244, 157, .8);
-        }
-
-        .tux-cloud {
-            position: absolute;
-            top: 80px;
-            left: 8%;
-
-            width: 100px;
-            height: 25px;
-
-            background: rgba(255,255,255,.7);
-            border-radius: 30px;
-
-            animation: tux-cloud-drift 30s linear infinite;
-        }
-
-        .tux-cloud::before,
-        .tux-cloud::after {
-            content: "";
-            position: absolute;
-
-            background: inherit;
-            border-radius: 50%;
-        }
-
-        .tux-cloud::before {
-            width: 35px;
-            height: 35px;
-            left: 15px;
-            top: -15px;
-        }
-
-        .tux-cloud::after {
-            width: 45px;
-            height: 45px;
-            right: 12px;
-            top: -23px;
-        }
-
-        @keyframes tux-cloud-drift {
-            from {
-                transform: translateX(-20px);
-            }
-
-            to {
-                transform: translateX(130px);
-            }
-        }
-
-        /* MONTANHAS */
-
-        .tux-mountain {
-            position: absolute;
-            bottom: 110px;
-
-            width: 0;
-            height: 0;
-
-            border-left: 100px solid transparent;
-            border-right: 100px solid transparent;
-            border-bottom: 170px solid rgba(255,255,255,.75);
-
-            pointer-events: none;
-        }
-
-        .tux-mountain.one {
-            left: -35px;
-        }
-
-        .tux-mountain.two {
-            left: 130px;
-            transform: scale(.8);
-            border-bottom-color: rgba(211, 241, 255, .9);
-        }
-
-        .tux-mountain.three {
-            right: -50px;
-            transform: scale(1.3);
-            border-bottom-color: rgba(255,255,255,.65);
-        }
-
-        /* GELO */
-
-        .tux-ground {
-            position: absolute;
-            z-index: 1;
-
-            left: -5%;
-            right: -5%;
-            bottom: -30px;
-
-            height: 150px;
-
-            border-radius: 50% 50% 0 0;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #ffffff,
-                    #d9f4ff
-                );
-
-            box-shadow: 0 -10px 35px rgba(255,255,255,.6);
-        }
-
-        .tux-ice-crack {
-            position: absolute;
-            z-index: 2;
-            bottom: 30px;
-            left: 20%;
-
-            width: 60px;
-            height: 18px;
-
-            border-bottom: 2px solid #b2deef;
-            border-left: 2px solid #b2deef;
-
-            transform: rotate(-18deg);
-            opacity: .65;
-        }
-
-        .tux-ice-crack.two {
-            left: 75%;
-            bottom: 55px;
-            transform: rotate(25deg);
-        }
-
-        /* NEVE */
-
-        .tux-snowflake {
-            position: absolute;
-            top: -15px;
-            z-index: 3;
-
-            color: white;
-            opacity: .85;
-
-            pointer-events: none;
-
-            animation: tux-snow-fall linear infinite;
-        }
-
-        @keyframes tux-snow-fall {
-            0% {
-                transform: translate3d(0, -10px, 0) rotate(0);
-            }
-
-            100% {
-                transform: translate3d(35px, 480px, 0) rotate(360deg);
-            }
-        }
-
-        /* PERSONAGEM */
-
-        .tux-character {
-            position: absolute;
-            z-index: 5;
-
-            left: 50%;
-            bottom: 75px;
-
-            width: 110px;
-            height: 155px;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-
-            transform: translateX(-50%);
-
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-
-            transition:
-                left 1.8s ease-in-out,
-                bottom .7s ease,
-                filter .3s ease;
-
-            filter: drop-shadow(0 7px 5px rgba(0,0,0,.12));
-        }
-
-        .tux-character:hover {
-            filter: drop-shadow(0 9px 8px rgba(0,0,0,.18));
-        }
-
-        .tux-character:focus-visible {
-            outline: 3px dashed #087ca7;
-            outline-offset: 6px;
-            border-radius: 30px;
-        }
-
-        .tux-emoji {
-            display: block;
-
-            font-family:
-                "Apple Color Emoji",
-                "Segoe UI Emoji",
-                "Noto Color Emoji",
-                sans-serif;
-
-            font-size: 105px;
-            line-height: 1;
-
-            transform-origin: center bottom;
-
-            transition: transform .3s ease;
-        }
-
-        .tux-character.walking .tux-emoji {
-            animation: tux-walk .35s ease-in-out infinite alternate;
-        }
-
-        .tux-character.dancing .tux-emoji {
-            animation: tux-dance .45s ease-in-out infinite alternate;
-        }
-
-        .tux-character.sleeping .tux-emoji {
-            transform: rotate(15deg) scale(.92);
-        }
-
-        .tux-character.surprised .tux-emoji {
-            animation: tux-surprise .35s ease-in-out;
-        }
-
-        .tux-character.hungry .tux-emoji {
-            animation: tux-hungry .8s ease-in-out infinite alternate;
-        }
-
-        .tux-character.grumpy .tux-emoji {
-            transform: rotate(-5deg);
-        }
-
-        @keyframes tux-walk {
-            from {
-                transform: rotate(-7deg) translateY(0);
-            }
-
-            to {
-                transform: rotate(7deg) translateY(-4px);
-            }
-        }
-
-        @keyframes tux-dance {
-            from {
-                transform: rotate(-20deg) translateY(-2px);
-            }
-
-            to {
-                transform: rotate(20deg) translateY(-12px);
-            }
-        }
-
-        @keyframes tux-surprise {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.2) rotate(5deg);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        @keyframes tux-hungry {
-            from {
-                transform: translateY(0);
-            }
-
-            to {
-                transform: translateY(-5px) rotate(3deg);
-            }
-        }
-
-        /* SOMBRA DO PINGUIM */
-
-        .tux-shadow {
-            position: absolute;
-            bottom: -3px;
-
-            width: 72px;
-            height: 15px;
-
-            background: rgba(37, 91, 118, .18);
-            border-radius: 50%;
-
-            filter: blur(3px);
-        }
-
-        /* BALÃO DE FALA */
-
-        .tux-bubble {
-            position: absolute;
-            z-index: 8;
-
-            left: 50%;
-            bottom: 245px;
-
-            width: min(310px, 84%);
-            padding: 14px 16px;
-
-            background: white;
-            border: 2px solid rgba(36, 114, 147, .14);
-            border-radius: 18px;
-
-            box-shadow: 0 8px 22px rgba(0, 52, 83, .13);
-
-            color: #17384e;
-            text-align: center;
-            line-height: 1.45;
-
-            transform: translateX(-50%);
-
-            opacity: 0;
-            visibility: hidden;
-
-            transition:
-                opacity .25s ease,
-                bottom .25s ease,
-                visibility .25s;
-        }
-
-        .tux-bubble.visible {
-            opacity: 1;
-            visibility: visible;
-            bottom: 250px;
-        }
-
-        .tux-bubble::after {
-            content: "";
-
-            position: absolute;
-            bottom: -11px;
-            left: calc(50% - 10px);
-
-            width: 18px;
-            height: 18px;
-
-            background: white;
-
-            border-right: 2px solid rgba(36, 114, 147, .14);
-            border-bottom: 2px solid rgba(36, 114, 147, .14);
-
-            transform: rotate(45deg);
-        }
-
-        .tux-bubble strong {
-            display: block;
-            margin-bottom: 4px;
-
-            color: #007da9;
-        }
-
-        .tux-bubble-text {
-            overflow-wrap: anywhere;
-        }
-
-        /* STATUS */
-
-        .tux-status {
-            position: absolute;
-            z-index: 6;
-
-            top: 14px;
-            left: 14px;
-
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-
-            padding: 10px 12px;
-
-            background: rgba(255,255,255,.83);
-            backdrop-filter: blur(5px);
-
-            border: 1px solid rgba(255,255,255,.8);
-            border-radius: 12px;
-
-            font-size: 12px;
-            color: #355a70;
-        }
-
-        .tux-status strong {
-            color: #123b55;
-        }
-
-        .tux-status-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .tux-status-dot {
-            width: 8px;
-            height: 8px;
-
-            display: inline-block;
-
-            background: #29bd72;
-            border-radius: 50%;
-        }
-
-        .tux-status-dot.paused {
-            background: #e0a42d;
-        }
-
-        /* BOTÃO DE COMIDA */
-
-        .tux-fish {
-            position: absolute;
-            z-index: 7;
-
-            bottom: 28px;
-            left: 70%;
-
-            padding: 8px 12px;
-
-            border: 1px solid #c3eaf8;
-            border-radius: 18px;
-
-            background: rgba(255,255,255,.85);
-
-            font-size: 24px;
-
-            box-shadow: 0 4px 10px rgba(0,0,0,.07);
-
-            transition:
-                transform .2s ease,
-                opacity .3s ease;
-        }
-
-        .tux-fish:hover {
-            transform: scale(1.15) rotate(-5deg);
-        }
-
-        .tux-fish.hidden {
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(.4);
-        }
-
-        /* CONTROLES */
-
-        .tux-controls {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-
-            margin: 16px 0;
-        }
-
-        .tux-button {
-            padding: 11px 16px;
-
-            border: none;
-            border-radius: 12px;
-
-            background: white;
-            color: #17384e;
-
-            box-shadow: 0 4px 12px rgba(0, 50, 80, .09);
-
-            font-weight: 600;
-
-            transition:
-                transform .15s ease,
-                background .15s ease;
-        }
-
-        .tux-button:hover {
-            transform: translateY(-2px);
-            background: #f0fbff;
-        }
-
-        .tux-button.primary {
-            background: #087ea4;
-            color: white;
-        }
-
-        .tux-button.primary:hover {
-            background: #056786;
-        }
-
-        /* PAINÉIS */
-
-        .tux-panel {
-            padding: 20px;
-            margin-bottom: 16px;
-
-            border: 1px solid rgba(255,255,255,.85);
-            border-radius: 18px;
-
-            background: rgba(255,255,255,.78);
-
-            box-shadow: 0 8px 25px rgba(0, 50, 80, .06);
-        }
-
-        .tux-panel h2 {
-            margin: 0 0 8px;
-            font-size: 19px;
-            color: #17384e;
-        }
-
-        .tux-panel p {
-            margin: 0 0 14px;
-            line-height: 1.55;
-            color: #456578;
-        }
-
-        .tux-chat-form {
-            display: flex;
-            gap: 8px;
-        }
-
-        .tux-chat-input {
-            min-width: 0;
-            flex: 1;
-
-            padding: 12px 14px;
-
-            border: 1px solid #c4e3ef;
-            border-radius: 12px;
-
-            background: white;
-            color: #17384e;
-        }
-
-        .tux-chat-input::placeholder {
-            color: #829ba9;
-        }
-
-        .tux-chat-hint {
-            margin-top: 10px !important;
-            margin-bottom: 0 !important;
-            font-size: 12px;
-        }
-
-        /* MEMÓRIA */
-
-        .tux-memory {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .tux-memory label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .tux-memory input[type="text"] {
-            width: 100%;
-            padding: 11px 12px;
-
-            border: 1px solid #c4e3ef;
-            border-radius: 10px;
-
-            background: white;
-        }
-
-        .tux-consent {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-
-            margin-top: 12px;
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <title>SRisk Autônomo 😼</title>
+  <meta name="description" content="SRisk, o mascote autônomo, irônico e radical da Seu Risco.">
+
+  <style>
+    :root {
+      --srisk-green: #2ecc71;
+      --srisk-orange: #e67e22;
+      --srisk-red: #e74c3c;
+      --srisk-dark: #1a1e24;
+      --srisk-shadow: rgba(0, 0, 0, .25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 12px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: #ecf0f1;
+      background: radial-gradient(
+        circle at 50% 20%,
+        #2c3e50 0%,
+        #111827 100%
+      );
+      transition: background 1s ease;
+    }
+
+    body.night-mode {
+      background: radial-gradient(
+        circle at 50% 20%,
+        #0f172a 0%,
+        #030712 100%
+      );
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .srisk-app {
+      width: min(100%, 800px);
+      margin: 0 auto;
+    }
+
+    .srisk-header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .srisk-header h1 {
+      margin: 0 0 6px;
+      color: #f39c12;
+      font-size: clamp(26px, 5vw, 40px);
+      text-shadow: 0 2px 8px rgba(243, 156, 18, .3);
+    }
+
+    .srisk-header p {
+      margin: 0;
+      color: #95a5a6;
+      font-size: 15px;
+    }
+
+    /* CENÁRIO */
+    .srisk-stage {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      width: 100%;
+      height: 440px;
+      border: 3px solid #34495e;
+      border-radius: 24px;
+      background: linear-gradient(
+        180deg,
+        #2c3e50 0%,
+        #1a252f 70%,
+        #111827 100%
+      );
+      box-shadow: 0 20px 40px rgba(0, 0, 0, .5);
+      transition: background 1s ease;
+    }
+
+    .night-mode .srisk-stage {
+      background: linear-gradient(
+        180deg,
+        #0f172a 0%,
+        #090d16 70%,
+        #020617 100%
+      );
+    }
+
+    .srisk-city-bg {
+      position: absolute;
+      inset: 0;
+      opacity: .15;
+      pointer-events: none;
+      background-image: repeating-linear-gradient(
+        90deg,
+        #34495e 0,
+        #34495e 40px,
+        transparent 40px,
+        transparent 80px
+      );
+    }
+
+    .srisk-ground {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 75px;
+      border-top: 4px solid #f39c12;
+      background: #111827;
+      box-shadow: 0 -5px 20px rgba(243, 156, 18, .2);
+    }
+
+    /* STATUS */
+    .srisk-status {
+      position: absolute;
+      z-index: 6;
+      top: 14px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: 12px;
+      background: rgba(26, 30, 36, .85);
+      color: #bdc3c7;
+      font-size: 13px;
+      backdrop-filter: blur(8px);
+    }
+
+    .srisk-status strong {
+      color: #fff;
+    }
+
+    .srisk-status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .srisk-status-dot {
+      width: 10px;
+      height: 10px;
+      flex: 0 0 10px;
+      border-radius: 50%;
+      background: var(--srisk-green);
+      box-shadow: 0 0 8px var(--srisk-green);
+    }
+
+    .srisk-status-dot.is-sleeping {
+      background: #95a5a6;
+      box-shadow: 0 0 8px #95a5a6;
+    }
+
+    /* BALÃO DE FALA */
+    .srisk-bubble {
+      position: absolute;
+      z-index: 8;
+      bottom: 235px;
+      left: 50%;
+      width: min(320px, 85%);
+      padding: 14px 18px;
+      border-radius: 18px;
+      background: #fff;
+      color: #1a1e24;
+      text-align: center;
+      line-height: 1.4;
+      font-weight: 500;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .3);
+      transform: translateX(-50%);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity .3s ease,
+        bottom .3s ease,
+        visibility .3s;
+    }
+
+    .srisk-bubble.visible {
+      bottom: 245px;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .srisk-bubble::after {
+      position: absolute;
+      bottom: -9px;
+      left: calc(50% - 9px);
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      content: "";
+      transform: rotate(45deg);
+    }
+
+    .srisk-bubble strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #d35400;
+      font-size: 12px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .srisk-character {
+        position: absolute;
+        left: 50%;
+        bottom: 22px;
+        width: 130px;
+        height: 150px;
+        transform: translateX(-50%);
+        cursor: pointer;
+        z-index: 5;
+        transform-origin: center bottom;
+        transition: left 1.5s ease-in-out;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .srisk-character svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        filter: drop-shadow(0 5px 4px rgba(0, 0, 0, 0.15));
+    }
+
+    .srisk-character:focus-visible {
+        outline: 3px solid #ffb74d;
+        outline-offset: 5px;
+        border-radius: 16px;
+    }
+
+    .srisk-character.is-dancing {
+        animation: srisk-dance 0.5s ease-in-out 3;
+    }
+
+    .srisk-character.is-surprised {
+        animation: srisk-surprise 0.45s ease-in-out 2;
+    }
+
+    .srisk-character.is-moving {
+        animation: srisk-bounce 0.6s ease-in-out;
+    }
+
+    .srisk-character.is-sleeping {
+        animation: srisk-sleep 2.5s ease-in-out infinite;
+    }
+
+    @keyframes srisk-dance {
+        0%, 100% { transform: translateX(-50%) rotate(0deg); }
+        25% { transform: translateX(-50%) rotate(-12deg) translateY(-8px); }
+        75% { transform: translateX(-50%) rotate(12deg) translateY(-8px); }
+    }
+
+    @keyframes srisk-surprise {
+        0%, 100% { transform: translateX(-50%) scale(1); }
+        50% { transform: translateX(-50%) scale(1.15); }
+    }
+
+    @keyframes srisk-bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-15px); }
+    }
+
+    @keyframes srisk-sleep {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(4px); }
+    }
+
+    .srisk-bubble {
+        position: absolute;
+        left: 50%;
+        bottom: 195px;
+        transform: translateX(-50%);
+        width: min(280px, calc(100% - 30px));
+        padding: 14px 17px;
+        border-radius: 18px;
+        background: #fff;
+        color: #263238;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        font-size: 14px;
+        line-height: 1.5;
+        text-align: center;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s ease, visibility 0.25s ease;
+        overflow-wrap: anywhere;
+    }
+
+    .srisk-bubble::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -10px;
+        transform: translateX(-50%);
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 11px solid #fff;
+    }
+
+    .srisk-bubble.is-visible {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .srisk-bubble strong {
+        color: #2e7d32;
+    }
+
+    .srisk-ground {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 25px;
+        background: linear-gradient(to bottom, #a5d6a7, #81c784);
+        border-radius: 0 0 18px 18px;
+    }
+
+    .srisk-stage-hint {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 30px;
+        text-align: center;
+        font-size: 11px;
+        color: #527b54;
+        pointer-events: none;
+    }
+
+    .srisk-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: #e8f5e9;
+        font-size: 24px;
+    }
+
+    .srisk-chat {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 18px;
+    }
+
+    .srisk-chat input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 14px;
+        border: 1px solid #c8e6c9;
+        border-radius: 12px;
+        outline: none;
+        font: inherit;
+        font-size: 14px;
+    }
+
+    .srisk-chat input:focus {
+        border-color: #43a047;
+        box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.12);
+    }
+
+    .srisk-chat button {
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 12px;
+        background: #2e7d32;
+        color: white;
+        font: inherit;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .srisk-chat button:hover {
+        background: #1b5e20;
+    }
+
+    .srisk-chat button:focus-visible {
+        outline: 3px solid #ffb74d;
+        outline-offset: 3px;
+    }
+
+    .srisk-footer {
+        margin-top: 18px;
+        text-align: center;
+        color: #789078;
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .srisk-footer a {
+        color: #2e7d32;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .srisk-footer a:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+        .srisk-container {
+            padding: 14px;
+        }
+
+        .srisk-stage {
+            height: 360px;
+        }
+
+        .srisk-character {
+            width: 112px;
+            height: 132px;
+        }
+
+        .srisk-bubble {
+            bottom: 175px;
             font-size: 13px;
-            line-height: 1.5;
-            color: #456578;
         }
 
-        .tux-consent input {
-            margin-top: 4px;
+        .srisk-chat {
+            gap: 7px;
         }
 
-        .tux-small-button {
-            padding: 10px 12px;
-
-            border: 1px solid #c9e3ef;
-            border-radius: 10px;
-
-            background: white;
-            color: #214a61;
-
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .tux-footer {
+        .srisk-chat button {
             padding: 12px;
-            text-align: center;
-
-            font-size: 12px;
-            line-height: 1.6;
-            color: #426579;
         }
+    }
 
-        /* ESTADOS ESPECIAIS */
-
-        .tux-reaction {
-            position: absolute;
-            z-index: 10;
-
-            font-size: 28px;
-            pointer-events: none;
-
-            animation: tux-reaction-rise 1.3s ease-out forwards;
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            scroll-behavior: auto !important;
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
         }
-
-        @keyframes tux-reaction-rise {
-            0% {
-                opacity: 0;
-                transform: translateY(10px) scale(.7);
-            }
-
-            20% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-                transform: translateY(-65px) scale(1.2);
-            }
-        }
-
-        .tux-paused-message {
-            display: none;
-            position: absolute;
-            z-index: 12;
-
-            top: 50%;
-            left: 50%;
-
-            transform: translate(-50%, -50%);
-
-            padding: 12px 18px;
-
-            background: rgba(18, 40, 61, .86);
-            color: white;
-
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .tux-stage.is-paused .tux-paused-message {
-            display: block;
-        }
-
-        .tux-privacy-note {
-            padding: 12px;
-
-            border-left: 3px solid #60b9d9;
-            border-radius: 6px;
-
-            background: rgba(221, 246, 255, .75);
-
-            font-size: 12px;
-            line-height: 1.6;
-            color: #36586b;
-        }
-
-        /* RESPONSIVIDADE */
-
-        @media (max-width: 560px) {
-            body {
-                padding: 14px 9px;
-            }
-
-            .tux-stage {
-                min-height: 410px;
-                border-radius: 20px;
-            }
-
-            .tux-character {
-                bottom: 65px;
-                width: 90px;
-            }
-
-            .tux-emoji {
-                font-size: 90px;
-            }
-
-            .tux-bubble {
-                bottom: 225px;
-                width: 86%;
-                font-size: 14px;
-            }
-
-            .tux-bubble.visible {
-                bottom: 230px;
-            }
-
-            .tux-status {
-                top: 9px;
-                left: 9px;
-                font-size: 11px;
-                padding: 8px;
-            }
-
-            .tux-sun {
-                width: 42px;
-                height: 42px;
-                right: 20px;
-                top: 25px;
-            }
-
-            .tux-chat-form {
-                flex-direction: column;
-            }
-
-            .tux-chat-form .tux-button {
-                width: 100%;
-            }
-
-            .tux-memory {
-                grid-template-columns: 1fr;
-            }
-
-            .tux-memory .tux-small-button {
-                width: 100%;
-            }
-
-            .tux-controls {
-                gap: 8px;
-            }
-
-            .tux-button {
-                padding: 10px 12px;
-                font-size: 13px;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: .01ms !important;
-                animation-iteration-count: 1 !important;
-                scroll-behavior: auto !important;
-                transition-duration: .01ms !important;
-            }
-        }
-    </style>
+    }
+</style>
 </head>
-
 <body>
-
-<main class="tux-app">
-
-    <header class="tux-header">
-        <h1>🐧 O Mundo do Tux</h1>
-        <p>
-            Ele tem vida própria. Você só precisa tomar cuidado
-            para não irritá-lo!
-        </p>
-    </header>
-
-    <section
-        class="tux-stage"
-        id="tuxStage"
-        aria-label="Cenário interativo do pinguim Tux"
-    >
-
-        <div class="tux-sky" aria-hidden="true">
-            <div class="tux-sun"></div>
-            <div class="tux-cloud"></div>
-
-            <div class="tux-mountain one"></div>
-            <div class="tux-mountain two"></div>
-            <div class="tux-mountain three"></div>
-        </div>
-
-        <div class="tux-ground" aria-hidden="true"></div>
-
-        <div class="tux-ice-crack" aria-hidden="true"></div>
-        <div class="tux-ice-crack two" aria-hidden="true"></div>
-
-        <div class="tux-status">
-            <div class="tux-status-row">
-                <span
-                    class="tux-status-dot"
-                    id="tuxStatusDot"
-                ></span>
-
-                <strong id="tuxStatusText">Tux está acordado</strong>
+    <main class="srisk-container">
+        <header class="srisk-header">
+            <div class="srisk-avatar" aria-hidden="true">😼</div>
+            <div class="srisk-heading">
+                <h1>SRisk Autônomo</h1>
+                <p>Um gatinho virtual com personalidade própria</p>
             </div>
-
-            <div>
-                Humor:
-                <strong id="tuxMood">Curioso</strong>
+            <div class="srisk-status" title="Personagem ativo">
+                <span class="srisk-status-dot" id="sriskStatusDot"></span>
+                <span id="sriskStatusText">Ativo</span>
             </div>
+        </header>
 
-            <div>
-                Interações:
-                <strong id="tuxInteractionCount">0</strong>
-            </div>
-        </div>
-
-        <div
-            class="tux-bubble"
-            id="tuxBubble"
-            role="status"
-            aria-live="polite"
+        <section
+            class="srisk-stage"
+            id="sriskStage"
+            aria-label="Cenário interativo do SRisk"
         >
-            <strong>Tux diz:</strong>
+            <div class="srisk-stage-top">
+                <span id="sriskMood">😺 Humor: tranquilo</span>
+                <span id="sriskAnnoyance">😾 Irritação: 0%</span>
+            </div>
 
             <div
-                class="tux-bubble-text"
-                id="tuxBubbleText"
+                class="srisk-bubble"
+                id="sriskBubble"
+                role="status"
+                aria-live="polite"
             >
-                Opa! Quem é você?
+                <span id="sriskBubbleText"></span>
             </div>
-        </div>
 
-        <div
-            class="tux-character"
-            id="tuxCharacter"
-            role="button"
-            tabindex="0"
-            aria-label="Tux, o pinguim. Clique para interagir."
-            title="Clique em mim!"
-        >
-            <span class="tux-emoji" aria-hidden="true">🐧</span>
-            <span class="tux-shadow" aria-hidden="true"></span>
-        </div>
+            <div
+                class="srisk-character"
+                id="sriskCharacter"
+                role="button"
+                tabindex="0"
+                aria-label="SRisk, personagem interativo. Clique ou pressione Enter para interagir."
+            >
+                <div id="sriskAvatarContainer" aria-hidden="true"></div>
+            </div>
 
-        <button
-            type="button"
-            class="tux-fish"
-            id="tuxFish"
-            aria-label="Oferecer peixe ao Tux"
-            title="Dê um peixe ao Tux"
-        >
-            🐟
-        </button>
+            <div class="srisk-stage-hint">
+                Clique no SRisk para interagir com ele!
+            </div>
+            <div class="srisk-ground" aria-hidden="true"></div>
+        </section>
 
-        <div class="tux-paused-message">
-            ⏸️ Tux está de folga.
-        </div>
-
-    </section>
-
-    <nav class="tux-controls" aria-label="Controles do Tux">
-
-        <button
-            type="button"
-            class="tux-button primary"
-            id="tuxPauseButton"
-        >
-            ⏸️ Pausar Tux
-        </button>
-
-        <button
-            type="button"
-            class="tux-button"
-            id="tuxDanceButton"
-        >
-            💃 Fazer dançar
-        </button>
-
-        <button
-            type="button"
-            class="tux-button"
-            id="tuxSleepButton"
-        >
-            😴 Hora da soneca
-        </button>
-
-        <button
-            type="button"
-            class="tux-button"
-            id="tuxTalkButton"
-        >
-            💬 Conversar
-        </button>
-
-    </nav>
-
-    <section class="tux-panel">
-
-        <h2>💬 Converse com o Tux</h2>
-
-        <p>
-            Faça uma pergunta, conte uma piada ou tente descobrir
-            o que está passando pela cabeça desse pinguim.
-        </p>
-
-        <form class="tux-chat-form" id="tuxChatForm">
-
+        <form class="srisk-chat" id="sriskChatForm">
             <input
                 type="text"
-                class="tux-chat-input"
-                id="tuxChatInput"
-                maxlength="300"
-                placeholder="Ex.: Tux, você gosta de Linux?"
+                id="sriskChatInput"
+                name="message"
+                placeholder="Converse com o SRisk..."
                 autocomplete="off"
-                aria-label="Digite uma mensagem para Tux"
-                required
+                maxlength="300"
+                aria-label="Mensagem para o SRisk"
             >
-
-            <button
-                type="submit"
-                class="tux-button primary"
-            >
-                Enviar mensagem
-            </button>
-
+            <button type="submit">Enviar</button>
         </form>
 
-        <p class="tux-chat-hint">
-            Dica: experimente perguntar sobre Linux, Windows,
-            seu nome, a idade dele ou simplesmente diga oi!
-            As respostas são programadas e não usam uma IA externa.
-        </p>
-
-    </section>
-
-    <section class="tux-panel">
-
-        <h2>🧠 Tux pode se lembrar de você</h2>
-
-        <p>
-            Se quiser, informe um apelido e autorize o navegador
-            a guardar algumas informações para a próxima visita.
-        </p>
-
-        <div class="tux-memory">
-
-            <div>
-                <label for="tuxNickname">
-                    Como Tux deve chamar você?
-                </label>
-
-                <input
-                    type="text"
-                    id="tuxNickname"
-                    maxlength="35"
-                    placeholder="Seu apelido"
-                    autocomplete="off"
-                >
-            </div>
-
-            <button
-                type="button"
-                class="tux-small-button"
-                id="tuxSaveNickname"
-            >
-                Salvar apelido
-            </button>
-
-        </div>
-
-        <label class="tux-consent">
-            <input
-                type="checkbox"
-                id="tuxMemoryConsent"
-            >
-
-            <span>
-                Permito que este navegador guarde meu apelido
-                e as estatísticas de interação do Tux para
-                visitas futuras. Posso apagar esses dados
-                quando quiser.
-            </span>
-        </label>
-
-        <div class="tux-controls" style="margin-bottom: 0;">
-
-            <button
-                type="button"
-                class="tux-button"
-                id="tuxClearMemory"
-            >
-                🗑️ Apagar memória
-            </button>
-
-        </div>
-
-        <div class="tux-privacy-note">
-            <strong>Privacidade:</strong>
-            os dados desta versão são armazenados apenas no
-            armazenamento local do navegador. Nenhuma mensagem
-            é enviada para um servidor. A memória é opcional.
-            Em um navegador que bloqueie o armazenamento local,
-            o Tux continuará funcionando, mas não guardará
-            informações entre visitas.
-        </div>
-
-    </section>
-
-    <footer class="tux-footer">
-        Feito com 🐧 e um pouquinho de código.<br>
-        Tux é um mascote inspirado no Linux.
-        Esta demonstração não é um serviço oficial do projeto Linux.
-    </footer>
-
-</main>
+        <footer class="srisk-footer">
+            <p>
+                O SRisk tem vida própria: observe suas reações e converse com ele.
+            </p>
+        </footer>
+    </main>
 
 <script>
-(function () {
-    "use strict";
+"use strict";
 
-    /* =====================================================
-       CONFIGURAÇÃO E ELEMENTOS
-    ===================================================== */
+/* =====================================================
+   EXPRESSÕES SVG DO SRISK
+===================================================== */
 
-    const $ = function (id) {
-        return document.getElementById(id);
-    };
+const SVG_EXPRESSIONS = {
+    idle: `
+        <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="70" cy="148" rx="42" ry="7" fill="#000" opacity=".12"/>
+            <path d="M35 65 L25 18 L58 40 Q70 35 82 40 L115 18 L105 65"
+                  fill="#37474f" stroke="#263238" stroke-width="3"
+                  stroke-linejoin="round"/>
+            <path d="M38 57 L31 28 L53 45 M102 57 L109 28 L87 45"
+                  fill="#ffccbc"/>
+            <ellipse cx="70" cy="82" rx="43" ry="45"
+                     fill="#546e7a" stroke="#263238" stroke-width="3"/>
+            <ellipse cx="54" cy="78" rx="6" ry="9" fill="#fff"/>
+            <ellipse cx="86" cy="78" rx="6" ry="9" fill="#fff"/>
+            <ellipse cx="55" cy="80" rx="3" ry="5" fill="#263238"/>
+            <ellipse cx="85" cy="80" rx="3" ry="5" fill="#263238"/>
+            <path d="M65 92 Q70 97 75 92 Q70 101 65 92"
+                  fill="#ffab91" stroke="#263238" stroke-width="1.5"/>
+            <path d="M70 100 Q60 111 54 101 M70 100 Q80 111 86 101"
+                  fill="none" stroke="#263238" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M37 95 L17 91 M38 102 L18 105
+                     M103 95 L123 91 M102 102 L122 105"
+                  stroke="#eceff1" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M43 119 Q70 109 97 119 L104 145
+                     Q70 155 36 145 Z"
+                  fill="#455a64" stroke="#263238" stroke-width="3"/>
+            <path d="M45 127 L30 139 M95 127 L110 139"
+                  stroke="#546e7a" stroke-width="10"
+                  stroke-linecap="round"/>
+            <path d="M44 145 L36 153 M96 145 L104 153"
+                  stroke="#263238" stroke-width="8"
+                  stroke-linecap="round"/>
+        </svg>
+    `,
 
-    const stage = $("tuxStage");
-    const character = $("tuxCharacter");
-    const bubble = $("tuxBubble");
-    const bubbleText = $("tuxBubbleText");
+    happy: `
+        <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="70" cy="148" rx="42" ry="7" fill="#000" opacity=".12"/>
+            <path d="M35 65 L25 18 L58 40 Q70 35 82 40 L115 18 L105 65"
+                  fill="#37474f" stroke="#263238" stroke-width="3"
+                  stroke-linejoin="round"/>
+            <path d="M38 57 L31 28 L53 45 M102 57 L109 28 L87 45"
+                  fill="#ffccbc"/>
+            <ellipse cx="70" cy="82" rx="43" ry="45"
+                     fill="#546e7a" stroke="#263238" stroke-width="3"/>
+            <path d="M45 78 Q54 67 63 78 M77 78 Q86 67 95 78"
+                  fill="none" stroke="#263238" stroke-width="4"
+                  stroke-linecap="round"/>
+            <path d="M62 92 Q70 99 78 92 Q70 110 62 92"
+                  fill="#ff8a80" stroke="#263238" stroke-width="1.5"/>
+            <path d="M37 95 L17 91 M38 102 L18 105
+                     M103 95 L123 91 M102 102 L122 105"
+                  stroke="#eceff1" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M43 119 Q70 109 97 119 L104 145
+                     Q70 155 36 145 Z"
+                  fill="#455a64" stroke="#263238" stroke-width="3"/>
+            <path d="M45 127 L30 139 M95 127 L110 139"
+                  stroke="#546e7a" stroke-width="10"
+                  stroke-linecap="round"/>
+            <path d="M44 145 L36 153 M96 145 L104 153"
+                  stroke="#263238" stroke-width="8"
+                  stroke-linecap="round"/>
+            <path d="M17 53 L10 45 M123 53 L130 45
+                     M70 23 L70 12"
+                  stroke="#ffb300" stroke-width="3"
+                  stroke-linecap="round"/>
+        </svg>
+    `,
 
-    const statusText = $("tuxStatusText");
-    const statusDot = $("tuxStatusDot");
-    const moodText = $("tuxMood");
-    const interactionCountText = $("tuxInteractionCount");
+    grumpy: `
+        <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="70" cy="148" rx="42" ry="7" fill="#000" opacity=".12"/>
+            <path d="M35 65 L25 18 L58 40 Q70 35 82 40 L115 18 L105 65"
+                  fill="#37474f" stroke="#263238" stroke-width="3"
+                  stroke-linejoin="round"/>
+            <path d="M38 57 L31 28 L53 45 M102 57 L109 28 L87 45"
+                  fill="#ffccbc"/>
+            <ellipse cx="70" cy="82" rx="43" ry="45"
+                     fill="#546e7a" stroke="#263238" stroke-width="3"/>
+            <path d="M44 70 L63 78 M96 70 L77 78"
+                  stroke="#263238" stroke-width="5"
+                  stroke-linecap="round"/>
+            <ellipse cx="54" cy="83" rx="5" ry="7" fill="#fff"/>
+            <ellipse cx="86" cy="83" rx="5" ry="7" fill="#fff"/>
+            <ellipse cx="54" cy="84" rx="2.5" ry="4" fill="#263238"/>
+            <ellipse cx="86" cy="84" rx="2.5" ry="4" fill="#263238"/>
+            <path d="M64 96 Q70 91 76 96"
+                  fill="none" stroke="#263238" stroke-width="3"
+                  stroke-linecap="round"/>
+            <path d="M37 95 L17 91 M38 102 L18 105
+                     M103 95 L123 91 M102 102 L122 105"
+                  stroke="#eceff1" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M43 119 Q70 109 97 119 L104 145
+                     Q70 155 36 145 Z"
+                  fill="#455a64" stroke="#263238" stroke-width="3"/>
+            <path d="M45 127 L30 139 M95 127 L110 139"
+                  stroke="#546e7a" stroke-width="10"
+                  stroke-linecap="round"/>
+            <path d="M44 145 L36 153 M96 145 L104 153"
+                  stroke="#263238" stroke-width="8"
+                  stroke-linecap="round"/>
+        </svg>
+    `,
 
-    const fishButton = $("tuxFish");
+    sleepy: `
+        <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="70" cy="148" rx="42" ry="7" fill="#000" opacity=".12"/>
+            <path d="M35 65 L25 18 L58 40 Q70 35 82 40 L115 18 L105 65"
+                  fill="#37474f" stroke="#263238" stroke-width="3"
+                  stroke-linejoin="round"/>
+            <path d="M38 57 L31 28 L53 45 M102 57 L109 28 L87 45"
+                  fill="#ffccbc"/>
+            <ellipse cx="70" cy="82" rx="43" ry="45"
+                     fill="#546e7a" stroke="#263238" stroke-width="3"/>
+            <path d="M45 82 Q54 88 63 82 M77 82 Q86 88 95 82"
+                  fill="none" stroke="#263238" stroke-width="4"
+                  stroke-linecap="round"/>
+            <path d="M65 96 Q70 99 75 96"
+                  fill="none" stroke="#263238" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M37 95 L17 91 M38 102 L18 105
+                     M103 95 L123 91 M102 102 L122 105"
+                  stroke="#eceff1" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M43 119 Q70 109 97 119 L104 145
+                     Q70 155 36 145 Z"
+                  fill="#455a64" stroke="#263238" stroke-width="3"/>
+            <path d="M45 127 L30 139 M95 127 L110 139"
+                  stroke="#546e7a" stroke-width="10"
+                  stroke-linecap="round"/>
+            <path d="M44 145 L36 153 M96 145 L104 153"
+                  stroke="#263238" stroke-width="8"
+                  stroke-linecap="round"/>
+            <text x="104" y="39" font-size="19" font-weight="bold"
+                  fill="#607d8b">Z</text>
+            <text x="119" y="23" font-size="13" font-weight="bold"
+                  fill="#607d8b">z</text>
+        </svg>
+    `,
 
-    const pauseButton = $("tuxPauseButton");
-    const danceButton = $("tuxDanceButton");
-    const sleepButton = $("tuxSleepButton");
-    const talkButton = $("tuxTalkButton");
+    surprised: `
+        <svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="70" cy="148" rx="42" ry="7" fill="#000" opacity=".12"/>
+            <path d="M35 65 L25 18 L58 40 Q70 35 82 40 L115 18 L105 65"
+                  fill="#37474f" stroke="#263238" stroke-width="3"
+                  stroke-linejoin="round"/>
+            <path d="M38 57 L31 28 L53 45 M102 57 L109 28 L87 45"
+                  fill="#ffccbc"/>
+            <ellipse cx="70" cy="82" rx="43" ry="45"
+                     fill="#546e7a" stroke="#263238" stroke-width="3"/>
+            <ellipse cx="53" cy="78" rx="9" ry="12" fill="#fff"/>
+            <ellipse cx="87" cy="78" rx="9" ry="12" fill="#fff"/>
+            <ellipse cx="54" cy="79" rx="4" ry="6" fill="#263238"/>
+            <ellipse cx="86" cy="79" rx="4" ry="6" fill="#263238"/>
+            <ellipse cx="70" cy="98" rx="7" ry="9"
+                     fill="#263238" stroke="#263238" stroke-width="2"/>
+            <path d="M37 95 L17 91 M38 102 L18 105
+                     M103 95 L123 91 M102 102 L122 105"
+                  stroke="#eceff1" stroke-width="2"
+                  stroke-linecap="round"/>
+            <path d="M43 119 Q70 109 97 119 L104 145
+                     Q70 155 36 145 Z"
+                  fill="#455a64" stroke="#263238" stroke-width="3"/>
+            <path d="M45 127 L30 139 M95 127 L110 139"
+                  stroke="#546e7a" stroke-width="10"
+                  stroke-linecap="round"/>
+            <path d="M44 145 L36 153 M96 145 L104 153"
+                  stroke="#263238" stroke-width="8"
+                  stroke-linecap="round"/>
+            <path d="M17 45 L10 36 M123 45 L130 36
+                     M70 22 L70 11"
+                  stroke="#ffb300" stroke-width="3"
+                  stroke-linecap="round"/>
+        </svg>
+    `
+};
 
-    const chatForm = $("tuxChatForm");
-    const chatInput = $("tuxChatInput");
+/* =====================================================
+   ELEMENTOS DA PÁGINA
+===================================================== */
 
-    const nicknameInput = $("tuxNickname");
-    const memoryConsent = $("tuxMemoryConsent");
-    const saveNicknameButton = $("tuxSaveNickname");
-    const clearMemoryButton = $("tuxClearMemory");
+const stage = document.getElementById("sriskStage");
+const character = document.getElementById("sriskCharacter");
+const avatarContainer = document.getElementById("sriskAvatarContainer");
+const bubble = document.getElementById("sriskBubble");
+const bubbleText = document.getElementById("sriskBubbleText");
+const moodElement = document.getElementById("sriskMood");
+const annoyanceElement = document.getElementById("sriskAnnoyance");
+const statusText = document.getElementById("sriskStatusText");
+const statusDot = document.getElementById("sriskStatusDot");
+const chatForm = document.getElementById("sriskChatForm");
+const chatInput = document.getElementById("sriskChatInput");
 
-    const STORAGE_KEY = "tux_autonomo_memoria_v1";
+/* =====================================================
+   ESTADO DO PERSONAGEM
+===================================================== */
 
-    const prefersReducedMotion =
-        window.matchMedia &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const state = {
+    mood: "tranquilo",
+    annoyance: 0,
+    clicks: 0,
+    isSleeping: false,
+    lastInteraction: Date.now(),
+    bubbleTimeout: null,
+    movementTimeout: null,
+    actionTimeout: null,
+    clickResetTimeout: null,
+    autonomousInterval: null,
+    position: 50
+};
 
-    /* =====================================================
-       ESTADO
-    ===================================================== */
+const NORMAL_PHRASES = [
+    "Oi! O que vamos aprontar hoje?",
+    "Estou de olho em você! 😼",
+    "Será que acontece alguma coisa interessante por aqui?",
+    "Um gatinho precisa de aventuras!",
+    "Você já reparou como eu sou charmoso?",
+    "Ei! Não vai me deixar falando sozinho, né?",
+    "Estou pensando em dominar o mundo... depois do lanche.",
+    "Será que hoje vai ser um bom dia?",
+    "Estou só observando tudo por aqui.",
+    "Miau! Quer conversar comigo?"
+];
 
-    const tux = {
-        paused: false,
+const HAPPY_PHRASES = [
+    "Isso! Estou gostando dessa brincadeira!",
+    "Agora sim! Mais animação!",
+    "Você sabe como me deixar feliz!",
+    "Miau! Hoje estou impossível!",
+    "Gostei disso! Vamos continuar!"
+];
 
-        mood: "Curioso",
+const GRUMPY_PHRASES = [
+    "Ei! Não precisa clicar tanto!",
+    "Calma aí! Eu também preciso respirar!",
+    "Você não cansa, não?",
+    "Olha que eu vou ficar emburrado!",
+    "Poxa! Deixa o gatinho em paz um pouquinho!",
+    "Já entendi! Você gosta de apertar botões!"
+];
 
-        action: "idle",
+const SLEEP_PHRASES = [
+    "Zzz... só vou descansar um pouquinho...",
+    "Cinco minutinhos... só mais cinco...",
+    "Se precisar de mim, tenta não gritar. Zzz...",
+    "Estou recarregando minhas energias..."
+];
 
-        nickname: "",
+/* =====================================================
+   FUNÇÕES AUXILIARES
+===================================================== */
 
-        interactions: 0,
+function randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
 
-        visits: 0,
+function setExpression(expression) {
+    const svg = SVG_EXPRESSIONS[expression] || SVG_EXPRESSIONS.idle;
+    avatarContainer.innerHTML = svg;
+}
 
-        lastVisit: null,
-
-        lastAction: Date.now(),
-
-        lastInteraction: Date.now(),
-
-        lastSpontaneousTalk: 0,
-
-        hunger: 0,
-
-        sleeping: false,
-
-        chatHistory: [],
-
-        timers: {
-            autonomous: null,
-            bubble: null,
-            fish: null,
-            hunger: null
-        }
-    };
-
-    const random = function (array) {
-        return array[Math.floor(Math.random() * array.length)];
-    };
-
-    const clamp = function (value, min, max) {
-        return Math.max(min, Math.min(max, value));
-    };
-
-    const safeText = function (value) {
-        return String(value || "").trim().slice(0, 300);
-    };
-
-    /* =====================================================
-       MEMÓRIA LOCAL OPCIONAL
-    ===================================================== */
-
-    function readMemory() {
-        if (!memoryConsent.checked) {
-            return null;
-        }
-
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-
-            if (!raw) {
-                return null;
-            }
-
-            const data = JSON.parse(raw);
-
-            if (!data || typeof data !== "object") {
-                return null;
-            }
-
-            return data;
-
-        } catch (error) {
-            return null;
-        }
+function updateMood() {
+    if (state.isSleeping) {
+        state.mood = "sonolento";
+        moodElement.textContent = "😴 Humor: sonolento";
+    } else if (state.annoyance >= 70) {
+        state.mood = "irritado";
+        moodElement.textContent = "😾 Humor: irritado";
+    } else if (state.annoyance >= 30) {
+        state.mood = "desconfiado";
+        moodElement.textContent = "😼 Humor: desconfiado";
+    } else {
+        state.mood = "tranquilo";
+        moodElement.textContent = "😺 Humor: tranquilo";
     }
 
-    function writeMemory() {
-        if (!memoryConsent.checked) {
-            return false;
-        }
+    annoyanceElement.textContent = `😾 Irritação: ${state.annoyance}%`;
+}
 
-        const data = {
-            nickname: tux.nickname,
-            interactions: tux.interactions,
-            visits: tux.visits,
-            lastVisit: tux.lastVisit,
-            savedAt: new Date().toISOString()
-        };
+function say(message, duration = 4000) {
+    if (!message) return;
 
-        try {
-            localStorage.setItem(
-                STORAGE_KEY,
-                JSON.stringify(data)
-            );
+    bubbleText.textContent = message;
+    bubble.classList.add("is-visible");
 
-            return true;
+    clearTimeout(state.bubbleTimeout);
+    state.bubbleTimeout = setTimeout(() => {
+        bubble.classList.remove("is-visible");
+    }, duration);
+}
 
-        } catch (error) {
-            return false;
-        }
+function clearCharacterActions() {
+    clearTimeout(state.movementTimeout);
+    clearTimeout(state.actionTimeout);
+
+    character.classList.remove(
+        "is-dancing",
+        "is-surprised",
+        "is-moving",
+        "is-sleeping"
+    );
+}
+
+function wakeUp() {
+    if (!state.isSleeping) return;
+
+    state.isSleeping = false;
+    character.classList.remove("is-sleeping");
+    setExpression("idle");
+    updateMood();
+}
+
+function registerInteraction() {
+    state.lastInteraction = Date.now();
+
+    if (state.isSleeping) {
+        wakeUp();
+    }
+}
+
+/* =====================================================
+   SAUDAÇÃO E HORÁRIO
+===================================================== */
+
+function getGreeting() {
+    const hour = new Date().getHours();
+
+    if (hour >= 5 && hour < 12) {
+        return "Bom dia! Já estou de pé... mais ou menos. 😺";
     }
 
-    function eraseMemory() {
-        try {
-            localStorage.removeItem(STORAGE_KEY);
-        } catch (error) {
-            // O navegador pode bloquear o armazenamento.
-        }
-
-        tux.nickname = "";
-        tux.interactions = 0;
-        tux.visits = 0;
-        tux.lastVisit = null;
-
-        nicknameInput.value = "";
-        memoryConsent.checked = false;
-
-        updateStats();
-
-        say(
-            "Memória apagada! Agora somos dois desconhecidos. " +
-            "Que clima de primeiro encontro... 🐧"
-        );
-
-        setMood("Curioso");
+    if (hour >= 12 && hour < 18) {
+        return "Boa tarde! Preparado para uma aventura?";
     }
 
-    function loadMemory() {
-        /*
-         * A memória só será carregada se houver consentimento
-         * previamente salvo pelo visitante.
-         *
-         * Para permitir que o navegador se lembre da escolha
-         * de consentimento, guardamos uma chave separada.
-         */
+    return "Boa noite! Vamos conversar um pouquinho?";
+}
 
-        let previouslyConsented = false;
+function checkDayNightCycle() {
+    const hour = new Date().getHours();
 
-        try {
-            previouslyConsented =
-                localStorage.getItem(
-                    STORAGE_KEY + "_consent"
-                ) === "yes";
-        } catch (error) {
-            previouslyConsented = false;
+    if (hour >= 22 || hour < 6) {
+        statusText.textContent = "Modo noturno";
+        statusDot.style.backgroundColor = "#78909c";
+    } else {
+        statusText.textContent = "Ativo";
+        statusDot.style.backgroundColor = "#43a047";
+    }
+}
+
+/* =====================================================
+   MOVIMENTAÇÃO AUTÔNOMA
+===================================================== */
+
+function moveAutonomously() {
+    if (document.hidden || state.isSleeping) return;
+
+    const stageWidth = stage.clientWidth;
+    const characterWidth = character.offsetWidth;
+
+    const margin = Math.max(characterWidth / 2 + 8, 20);
+    const availableWidth = stageWidth - margin * 2;
+
+    if (availableWidth <= 0) return;
+
+    const newX = margin + Math.random() * availableWidth;
+
+    character.style.left = `${newX}px`;
+    state.position = (newX / stageWidth) * 100;
+
+    character.classList.remove("is-moving");
+    void character.offsetWidth;
+    character.classList.add("is-moving");
+
+    setTimeout(() => {
+        character.classList.remove("is-moving");
+    }, 650);
+}
+
+/* =====================================================
+   AÇÕES AUTÔNOMAS
+===================================================== */
+
+function performAutonomousAction() {
+    if (document.hidden) return;
+
+    const idleTime = Date.now() - state.lastInteraction;
+    const hour = new Date().getHours();
+
+    if (state.isSleeping) {
+        if (Math.random() < 0.35) {
+            wakeUp();
+            setExpression("surprised");
+            say("Hã?! Eu estava descansando!", 3500);
         }
-
-        memoryConsent.checked = previouslyConsented;
-
-        if (!previouslyConsented) {
-            return;
-        }
-
-        const data = readMemory();
-
-        if (!data) {
-            return;
-        }
-
-        tux.nickname =
-            typeof data.nickname === "string"
-                ? data.nickname.slice(0, 35)
-                : "";
-
-        tux.interactions =
-            Number.isFinite(data.interactions)
-                ? Math.max(0, data.interactions)
-                : 0;
-
-        tux.visits =
-            Number.isFinite(data.visits)
-                ? Math.max(0, data.visits)
-                : 0;
-
-        tux.lastVisit = data.lastVisit || null;
-
-        nicknameInput.value = tux.nickname;
-
-        tux.visits += 1;
-
-        writeMemory();
-        updateStats();
+        return;
     }
 
-    memoryConsent.addEventListener("change", function () {
-        if (memoryConsent.checked) {
-            try {
-                localStorage.setItem(
-                    STORAGE_KEY + "_consent",
-                    "yes"
-                );
-            } catch (error) {
-                // A memória continuará temporariamente disponível.
-            }
-
-            writeMemory();
-
-            say(
-                tux.nickname
-                    ? "Memória ativada! Opa, eu lembro de você, " +
-                      tux.nickname + "! 😎"
-                    : "Memória ativada! Agora posso lembrar " +
-                      "do apelido que você escolher."
-            );
-
-        } else {
-            try {
-                localStorage.removeItem(STORAGE_KEY);
-                localStorage.removeItem(
-                    STORAGE_KEY + "_consent"
-                );
-            } catch (error) {
-                // Sem armazenamento persistente.
-            }
-
-            say(
-                "Memória desativada. Não vou guardar " +
-                "essas informações para a próxima visita."
-            );
-        }
-    });
-
-    saveNicknameButton.addEventListener("click", function () {
-        const nickname = safeText(nicknameInput.value)
-            .replace(/[<>]/g, "")
-            .slice(0, 35);
-
-        tux.nickname = nickname;
-
-        if (memoryConsent.checked) {
-            writeMemory();
-        }
-
-        registerInteraction();
-
-        if (nickname) {
-            say(
-                "Beleza, " + nickname +
-                "! Vou tentar lembrar desse nome. " +
-                "Se eu esquecer, não me julgue: sou um pinguim. 😅"
-            );
-        } else {
-            say(
-                "Apelido removido. Posso continuar te chamando " +
-                "de ser humano misterioso."
-            );
-        }
-    });
-
-    clearMemoryButton.addEventListener("click", function () {
-        const confirmed = window.confirm(
-            "Deseja apagar o apelido e as estatísticas " +
-            "que o Tux guardou neste navegador?"
-        );
-
-        if (confirmed) {
-            eraseMemory();
-        }
-    });
-
-    /* =====================================================
-       ESTATÍSTICAS E HUMOR
-    ===================================================== */
-
-    function updateStats() {
-        interactionCountText.textContent =
-            String(tux.interactions);
-
-        moodText.textContent = tux.mood;
+    if (idleTime > 45000 && (hour >= 22 || hour < 6)) {
+        state.isSleeping = true;
+        clearCharacterActions();
+        character.classList.add("is-sleeping");
+        setExpression("sleepy");
+        say(randomItem(SLEEP_PHRASES), 5000);
+        updateMood();
+        return;
     }
 
-    function registerInteraction() {
-        tux.interactions += 1;
+    const action = Math.random();
 
-        tux.lastInteraction = Date.now();
+    if (action < 0.30) {
+        moveAutonomously();
+    } else if (action < 0.50) {
+        setExpression("happy");
+        character.classList.add("is-dancing");
+        say(randomItem(HAPPY_PHRASES), 3500);
 
-        updateStats();
+        state.actionTimeout = setTimeout(() => {
+            character.classList.remove("is-dancing");
+            setExpression("idle");
+        }, 1600);
+    } else if (action < 0.65) {
+        setExpression("surprised");
+        character.classList.add("is-surprised");
+        say("Opa! O que foi isso?!", 3000);
 
-        if (memoryConsent.checked) {
-            writeMemory();
-        }
+        state.actionTimeout = setTimeout(() => {
+            character.classList.remove("is-surprised");
+            setExpression("idle");
+        }, 1000);
+    } else if (action < 0.82) {
+        say(randomItem(NORMAL_PHRASES), 3500);
+    } else {
+        setExpression("idle");
+    }
+}
+
+/* =====================================================
+   CLIQUES E IRRITAÇÃO
+===================================================== */
+
+function spawnReaction() {
+    registerInteraction();
+
+    state.clicks += 1;
+    state.annoyance = Math.min(100, state.annoyance + 8);
+
+    clearTimeout(state.clickResetTimeout);
+    state.clickResetTimeout = setTimeout(() => {
+        state.clicks = 0;
+        state.annoyance = Math.max(0, state.annoyance - 15);
+        updateMood();
+    }, 5000);
+
+    updateMood();
+
+    if (state.annoyance >= 70) {
+        setExpression("grumpy");
+        say(randomItem(GRUMPY_PHRASES), 4000);
+    } else if (state.clicks >= 3) {
+        setExpression("surprised");
+        say("Ei! Quantas vezes você vai clicar?! 😹", 3500);
+    } else if (Math.random() < 0.5) {
+        setExpression("happy");
+        say(randomItem(HAPPY_PHRASES), 3000);
+    } else {
+        setExpression("idle");
+        say(randomItem(NORMAL_PHRASES), 3000);
     }
 
-    function setMood(mood) {
-        tux.mood = mood;
-
-        moodText.textContent = mood;
-
-        character.classList.remove(
-            "hungry",
-            "grumpy",
-            "sleeping"
-        );
-
-        if (mood === "Faminto") {
-            character.classList.add("hungry");
+    clearTimeout(state.actionTimeout);
+    state.actionTimeout = setTimeout(() => {
+        if (!state.isSleeping) {
+            setExpression("idle");
         }
+    }, 1800);
+}
 
-        if (mood === "Mal-humorado") {
-            character.classList.add("grumpy");
-        }
+/* =====================================================
+   RESPOSTAS À CONVERSA
+===================================================== */
 
-        if (mood === "Sonolento") {
-            character.classList.add("sleeping");
-        }
+function getChatResponse(message) {
+    const text = message
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+
+    if (!text) {
+        return "Você precisa escrever alguma coisa para eu responder! 😹";
     }
 
-    function updateStatus(text) {
-        statusText.textContent = text;
+    if (/\b(oi|ola|eai|e ai|opa|hey|hello|bom dia|boa tarde|boa noite)\b/.test(text)) {
+        return getGreeting();
     }
 
-    /* =====================================================
-       FALAS DO TUX
-    ===================================================== */
-
-    const phrases = {
-        greetings: [
-            "Opa! Visitante novo ou eu já te vi por aqui?",
-            "Bem-vindo ao gelo! Traga casaco e senso de humor.",
-            "Oi! Sou o Tux. Sim, o pinguim. Não, não sei voar.",
-            "Você veio visitar o pinguim mais elegante da internet?",
-            "Entre, fique à vontade. Só não mexa no meu peixe.",
-            "Olá, criatura terrestre! Como vai a vida fora do gelo?"
-        ],
-
-        idle: [
-            "Será que peixes sonham com pinguins?",
-            "Estou pensando em abrir uma peixaria. Aceito investidores.",
-            "O gelo está escorregadio hoje. Ou será que sou eu?",
-            "A vida é curta. Exceto quando você é um pinguim parado.",
-            "Alguém viu meu peixe? Eu tinha certeza de que estava aqui.",
-            "Às vezes penso em voar. Aí lembro que sou um pinguim.",
-            "Estou ocupado. Fazendo... coisas de pinguim.",
-            "Se eu ficar imóvel, talvez pensem que sou uma estátua.",
-            "Este é meu lado contemplativo. Tenho outros, mas são pagos.",
-            "Linux, gelo e peixe. O tripé da felicidade.",
-            "Será que os humanos também sentem frio nos pés?",
-            "Um dia vou conquistar o mundo. Mas primeiro, uma soneca."
-        ],
-
-        grumpy: [
-            "Você de novo? Brincadeira. Ou não.",
-            "Estou numa reunião importante com o meu peixe.",
-            "Não estou mal-humorado. Minha cara é assim mesmo.",
-            "Falaram que pinguins são fofos. Isso é pressão estética.",
-            "Hoje acordei com vontade de reclamar do clima.",
-            "Não é nada pessoal. Só estou economizando simpatia."
-        ],
-
-        sleepy: [
-            "Cinco minutinhos...",
-            "Se eu fechar os olhos, ninguém me pede nada.",
-            "Zzz... sonhando com um oceano de peixes...",
-            "Acordo quando chegar a hora do almoço.",
-            "Meu sistema operacional está entrando em suspensão.",
-            "Não estou dormindo. Estou fazendo backup dos sonhos."
-        ],
-
-        hungry: [
-            "Estou vendo peixes em todo lugar. Ah, espera...",
-            "Meu estômago acabou de abrir uma solicitação urgente.",
-            "Preciso de peixe. Isto não é um exercício.",
-            "A fome é real. A dignidade, nem tanto.",
-            "Alguém tem um petisco? Aceito doações."
-        ],
-
-        happy: [
-            "Isso! Mais um motivo para sorrir!",
-            "Hoje o gelo está mais bonito. Ou sou eu?",
-            "Você é legal. Não espalha, tenho uma reputação.",
-            "Oba! Estou me sentindo um pinguim de sorte!",
-            "Se eu tivesse braços maiores, te daria um abraço."
-        ],
-
-        clicks: [
-            "Ei! Minha plumagem!",
-            "Pode clicar, mas não se acostume.",
-            "Estou aqui, criatura curiosa.",
-            "Isso foi um teste? Passei?",
-            "Mais um clique e vou cobrar aluguel.",
-            "Você sabe que eu não sou um botão, né?",
-            "Clique registrado. Meu advogado vai adorar.",
-            "Se continuar, vou pensar que você gosta de mim."
-        ],
-
-        linux: [
-            "Linux? Meu habitat natural! 🐧",
-            "No mundo Linux, até o pinguim tem privilégios.",
-            "Eu rodo em qualquer lugar. Menos na sua torradeira... talvez.",
-            "Linux é liberdade. E eu sou a prova emplumada disso.",
-            "Kernel, terminal e peixe. Tudo funcionando perfeitamente."
-        ],
-
-        windows: [
-            "Windows? Tudo bem. Não vou julgar... muito. 😏",
-            "Você usa Windows? Meu Deus, preciso sentar.",
-            "Calma, eu não vou instalar o Linux no seu computador. Hoje.",
-            "Cada um com seu sistema. Eu fico com meus peixes.",
-            "Não vim discutir sistemas operacionais. Vim comer."
-        ],
-
-        jokes: [
-            "Por que o pinguim não usa elevador? Porque prefere ir no gelo.",
-            "Qual é o sistema favorito de um pinguim? Linux, obviamente!",
-            "Por que o peixe foi à escola? Para ficar mais esperto na rede.",
-            "O que o pinguim disse ao computador? 'Você está congelando!'",
-            "Por que pinguins não gostam de calor? Porque derretem de vergonha.",
-            "Qual é o esporte favorito do pinguim? Patinação no gelo!"
-        ],
-
-        goodbye: [
-            "Vai com cuidado! O chão fora daqui não é tão gelado.",
-            "Até logo! Vou sentir falta dos seus cliques.",
-            "Tchau! Não se esqueça de alimentar os pinguins.",
-            "Volte sempre. Eu estarei aqui, provavelmente dormindo.",
-            "Adeus, ser humano. Que seu Wi-Fi seja forte!"
-        ]
-    };
-
-    function bubbleVisible() {
-        return bubble.classList.contains("visible");
+    if (/\b(quem e voce|seu nome|como voce chama|quem e o srisk)\b/.test(text)) {
+        return "Eu sou o SRisk! Um gatinho virtual cheio de personalidade. 😼";
     }
 
-    function say(message, duration) {
-        bubbleText.textContent = message;
-
-        bubble.classList.add("visible");
-
-        clearTimeout(tux.timers.bubble);
-
-        tux.timers.bubble = setTimeout(function () {
-            bubble.classList.remove("visible");
-        }, duration || 6500);
-
-        tux.lastSpontaneousTalk = Date.now();
+    if (/\b(tudo bem|como voce esta|como vai)\b/.test(text)) {
+        return "Estou bem! Quer dizer... depende de quantas vezes você clicar em mim! 😹";
     }
 
-    function sayRandom(category) {
-        const list = phrases[category] || phrases.idle;
-
-        let message = random(list);
-
-        if (
-            tux.nickname &&
-            Math.random() < 0.35 &&
-            category !== "goodbye"
-        ) {
-            message = tux.nickname + ", " + message;
-        }
-
-        say(message);
+    if (/\b(obrigado|obrigada|valeu|agradeco)\b/.test(text)) {
+        return "Por nada! Pode agradecer com um petisco virtual. 😸";
     }
 
-    /* =====================================================
-       EFEITOS VISUAIS
-    ===================================================== */
-
-    function spawnReaction(emoji) {
-        const reaction = document.createElement("span");
-
-        reaction.className = "tux-reaction";
-        reaction.textContent = emoji;
-
-        const stageRect = stage.getBoundingClientRect();
-        const tuxRect = character.getBoundingClientRect();
-
-        const x =
-            tuxRect.left -
-            stageRect.left +
-            tuxRect.width / 2;
-
-        const y =
-            tuxRect.top -
-            stageRect.top +
-            20;
-
-        reaction.style.left = x + "px";
-        reaction.style.top = y + "px";
-
-        stage.appendChild(reaction);
-
-        setTimeout(function () {
-            reaction.remove();
-        }, 1500);
+    if (/\b(te amo|amo voce|gosto de voce|gosto de ti)\b/.test(text)) {
+        return "Opa! Assim você deixa um gatinho todo sem graça! 💚";
     }
 
-    function makeSnow() {
-        if (prefersReducedMotion) {
-            return;
-        }
-
-        const snowCount = 24;
-
-        for (let i = 0; i < snowCount; i++) {
-            const snow = document.createElement("span");
-
-            snow.className = "tux-snowflake";
-            snow.textContent = random(["❄", "❅", "·", "✦"]);
-
-            snow.style.left = Math.random() * 100 + "%";
-
-            snow.style.animationDuration =
-                (7 + Math.random() * 10) + "s";
-
-            snow.style.animationDelay =
-                (-Math.random() * 15) + "s";
-
-            snow.style.fontSize =
-                (8 + Math.random() * 12) + "px";
-
-            stage.appendChild(snow);
-        }
+    if (/\b(tchau|adeus|ate mais|falou|vou embora)\b/.test(text)) {
+        return "Tudo bem! Vou ficar por aqui tomando conta do meu território. Até mais! 😺";
     }
 
-    /* =====================================================
-       ANDAR E EXPLORAR
-    ===================================================== */
+    if (/\b(danca|dancar|dancando|dancinha)\b/.test(text)) {
+        return "Quer ver meu talento? Segura essa! 💃";
 
-    function moveTux() {
-        if (tux.paused || document.hidden) {
-            return;
-        }
-
-        const stageWidth = stage.clientWidth;
-        const tuxWidth = character.offsetWidth;
-
-        const margin = Math.max(20, tuxWidth / 2);
-
-        const min = margin;
-        const max = Math.max(
-            min,
-            stageWidth - margin
-        );
-
-        const newX =
-            min + Math.random() * (max - min);
-
-        const currentX =
-            parseFloat(character.style.left) ||
-            stageWidth / 2;
-
-        const goingLeft = newX < currentX;
-
-        character.style.left = newX + "px";
-
-        character.style.transform = goingLeft
-            ? "translateX(-50%) scaleX(-1)"
-            : "translateX(-50%) scaleX(1)";
-
-        character.classList.add("walking");
-
-        tux.action = "walking";
-
-        updateStatus("Tux está passeando");
-
-        setTimeout(function () {
-            character.classList.remove("walking");
-
-            if (tux.action === "walking") {
-                tux.action = "idle";
-                updateStatus("Tux está acordado");
-            }
-        }, 1900);
     }
 
-    /* =====================================================
-       COMPORTAMENTOS
-    ===================================================== */
-
-    function stopCharacterAnimations() {
-        character.classList.remove(
-            "walking",
-            "dancing",
-            "sleeping",
-            "surprised",
-            "hungry",
-            "grumpy"
-        );
+    if (/\b(dorme|dormir|sono|soninho|cansado)\b/.test(text)) {
+        return "Falou em dormir? Agora você chamou minha atenção... Zzz...";
     }
 
-    function dance() {
-        if (tux.paused) {
-            say("Estou de folga! Despausa primeiro.");
-            return;
-        }
-
-        stopCharacterAnimations();
-
-        character.classList.add("dancing");
-
-        tux.action = "dancing";
-
-        setMood("Animado");
-
-        updateStatus("Tux está dançando");
-
-        say(
-            random([
-                "Olha o rebolado do pinguim!",
-                "Dança do gelo ativada! 🕺",
-                "Não sou bom nisso, mas tenho atitude.",
-                "DJ, solta o som! Quer dizer... o vento!",
-                "Se isso não é talento, não sei o que é."
-            ])
-        );
-
-        spawnReaction("🎵");
-        spawnReaction("✨");
-
-        setTimeout(function () {
-            character.classList.remove("dancing");
-
-            tux.action = "idle";
-
-            setMood("Curioso");
-
-            updateStatus("Tux está acordado");
-        }, 4500);
+    if (/\b(bravo|brava|irritado|irritada|nervoso|nervosa)\b/.test(text)) {
+        return "Eu? Bravo? Só um pouquinho... principalmente quando clicam demais! 😾";
     }
 
-    function sleep() {
-        if (tux.paused) {
-            say("Não posso dormir duas vezes. Ou posso?");
-            return;
-        }
-
-        stopCharacterAnimations();
-
-        character.classList.add("sleeping");
-
-        tux.action = "sleeping";
-        tux.sleeping = true;
-
-        setMood("Sonolento");
-
-        updateStatus("Tux está dormindo");
-
-        sayRandom("sleepy");
-
-        clearTimeout(tux.timers.hunger);
-
-        tux.timers.hunger = setTimeout(function () {
-            if (tux.paused) {
-                return;
-            }
-
-            tux.sleeping = false;
-
-            character.classList.remove("sleeping");
-
-            tux.action = "idle";
-
-            setMood("Curioso");
-
-            updateStatus("Tux acordou");
-
-            say(
-                "Acordei! Tive um sonho maravilhoso " +
-                "com um peixe gigante."
-            );
-        }, 7000);
+    if (/\b(gato|gatinho|miau|meow)\b/.test(text)) {
+        return "Miau! Finalmente alguém falando a minha língua! 🐾";
     }
 
-    function surprise() {
-        stopCharacterAnimations();
-
-        character.classList.add("surprised");
-
-        spawnReaction("❗");
-
-        setTimeout(function () {
-            character.classList.remove("surprised");
-        }, 450);
+    if (/\b(pi ada|piada|engracado|engracada|rir|risada)\b/.test(text)) {
+        return "Por que o gato sentou no computador? Para ficar de olho no mouse! 🐭";
     }
 
-    /* =====================================================
-       PEIXE
-    ===================================================== */
-
-    function showFish() {
-        if (tux.paused) {
-            return;
-        }
-
-        fishButton.classList.remove("hidden");
-
-        const maxLeft = Math.max(
-            15,
-            stage.clientWidth - 70
-        );
-
-        fishButton.style.left =
-            (20 + Math.random() * Math.max(1, maxLeft - 20)) +
-            "px";
+    if (/\b(ajuda|o que voce faz|como funciona)\b/.test(text)) {
+        return "Você pode conversar comigo, clicar em mim e observar minhas ações autônomas. Só não exagera nos cliques! 😹";
     }
 
-    function hideFish() {
-        fishButton.classList.add("hidden");
+    if (/\b(corinthians|tim ao|timao)\b/.test(text)) {
+        return "Até o gatinho sabe que uma boa conversa pode virar discussão de futebol! ⚽";
     }
 
-    function feedTux() {
-        if (tux.paused) {
-            say("Não consigo comer enquanto estou de folga.");
-            return;
-        }
-
-        registerInteraction();
-
-        tux.hunger = 0;
-
-        hideFish();
-
-        stopCharacterAnimations();
-
-        setMood("Feliz");
-
-        tux.action = "eating";
-
-        updateStatus("Tux está comendo");
-
-        spawnReaction("🐟");
-        spawnReaction("❤️");
-
-        say(
-            random([
-                "NHAC! Esse peixe estava delicioso!",
-                "Finalmente! Já estava quase comendo o gelo.",
-                "Obrigado! Agora somos melhores amigos.",
-                "Peixe recebido. Felicidade restaurada em 100%.",
-                "Que refeição magnífica! Nota dez para o fornecedor."
-            ])
-        );
-
-        setTimeout(function () {
-            if (tux.paused) {
-                return;
-            }
-
-            tux.action = "idle";
-
-            setMood("Curioso");
-
-            updateStatus("Tux está satisfeito");
-        }, 2500);
+    if (/\b(clique|clicar|cliquei|apertar)\b/.test(text)) {
+        return "Pode interagir comigo, mas cuidado: minha paciência tem limites! 😼";
     }
 
-    fishButton.addEventListener("click", feedTux);
+    const fallbackResponses = [
+        "Interessante... me conta mais!",
+        "Hmm... preciso pensar sobre isso.",
+        "Será que você pode explicar de outro jeito?",
+        "Eu sou um gatinho, não um especialista em tudo! 😹",
+        "Estou ouvindo! Continue...",
+        "Miau! Essa é nova para mim.",
+        "Não sei bem o que responder, mas gostei da conversa!",
+        "Será que isso tem alguma coisa a ver com petiscos?",
+        "Vou guardar essa informação no meu cérebro de gatinho!",
+        "Você sempre tem umas ideias interessantes!"
+    ];
 
-    /* =====================================================
-       INTERAÇÃO POR CLIQUE
-    ===================================================== */
+    return randomItem(fallbackResponses);
+}
 
-    function clickTux() {
-        if (tux.paused) {
-            say("Estou de folga. Volte quando eu estiver disponível.");
-            return;
-        }
+/* =====================================================
+   EVENTOS DO PERSONAGEM
+===================================================== */
 
-        registerInteraction();
+function handleCharacterInteraction() {
+    spawnReaction();
+}
 
-        tux.hunger += 1;
+character.addEventListener("click", handleCharacterInteraction);
 
-        surprise();
-
-        if (tux.hunger >= 5) {
-            setMood("Mal-humorado");
-
-            say(
-                "Você já clicou em mim várias vezes! " +
-                "Que tal um peixe em vez disso?"
-            );
-
-            showFish();
-
-            return;
-        }
-
-        const roll = Math.random();
-
-        if (roll < 0.15) {
-            dance();
-            return;
-        }
-
-        if (roll < 0.35) {
-            sayRandom("happy");
-            spawnReaction("❤️");
-            return;
-        }
-
-        if (roll < 0.60) {
-            sayRandom("clicks");
-            return;
-        }
-
-        if (roll < 0.78) {
-            moveTux();
-
-            say(
-                "Você me assustou! Vou passear um pouco."
-            );
-
-            return;
-        }
-
-        sayRandom("idle");
-    }
-
-    character.addEventListener("click", clickTux);
-
-    character.addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            clickTux();
-        }
-    });
-
-    /* =====================================================
-       RECONHECIMENTO DE ASSUNTOS
-       Respostas locais e programadas.
-    ===================================================== */
-
-    function normalize(text) {
-        return String(text || "")
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/[^\w\s]/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
-    }
-
-    function includesAny(text, terms) {
-        return terms.some(function (term) {
-            return text.includes(term);
-        });
-    }
-
-    function answerQuestion(message) {
-        const text = normalize(message);
-
-        const name = tux.nickname;
-
-        /*
-         * As respostas são verificadas em ordem.
-         * Coloque regras mais específicas antes das genéricas.
-         */
-
-        if (!text) {
-            return "Você digitou uma mensagem invisível? " +
-                   "Tente novamente.";
-        }
-
-        if (
-            includesAny(text, [
-                "qual meu nome",
-                "como me chamo",
-                "voce lembra de mim",
-                "lembra de mim",
-                "me conhece"
-            ])
-        ) {
-            if (name) {
-                return "Claro que lembro, " + name +
-                       "! Pelo menos enquanto minha memória " +
-                       "local estiver disponível. 😎";
-            }
-
-            return "Ainda não sei seu nome! Se quiser, " +
-                   "escolha um apelido no painel de memória.";
-        }
-
-        if (
-            includesAny(text, [
-                "seu nome",
-                "quem e voce",
-                "quem e vc",
-                "quem voce e"
-            ])
-        ) {
-            return "Eu sou o Tux, o pinguim mascote " +
-                   "do Linux! Uma lenda do gelo e do código.";
-        }
-
-        if (
-            includesAny(text, [
-                "linux",
-                "kernel",
-                "software livre"
-            ])
-        ) {
-            return random(phrases.linux);
-        }
-
-        if (
-            includesAny(text, [
-                "windows",
-                "microsoft",
-                "pc gamer"
-            ])
-        ) {
-            return random(phrases.windows);
-        }
-
-        if (
-            includesAny(text, [
-                "macos",
-                "mac os",
-                "apple"
-            ])
-        ) {
-            return "Maçã, peixe... cada um tem seu ecossistema! " +
-                   "Eu continuo fiel ao Linux. 🐧";
-        }
-
-        if (
-            includesAny(text, [
-                "piada",
-                "conte uma",
-                "me faz rir",
-                "me conte algo engracado",
-                "me conta uma piada"
-            ])
-        ) {
-            return random(phrases.jokes);
-        }
-
-        if (
-            includesAny(text, [
-                "idade",
-                "quantos anos voce tem",
-                "quando voce nasceu"
-            ])
-        ) {
-            return "Idade de pinguim digital é complicada. " +
-                   "Digamos que sou jovem de espírito e " +
-                   "antigo o bastante para conhecer o Linux!";
-        }
-
-        if (
-            includesAny(text, [
-                "peixe",
-                "comer",
-                "fome",
-                "comida",
-                "almoco",
-                "jantar"
-            ])
-        ) {
-            showFish();
-
-            setMood("Faminto");
-
-            return "Alguém falou em comida?! " +
-                   "O botão de peixe está ali. " +
-                   "Não aceito pagamento em biscoitos.";
-        }
-
-        if (
-            includesAny(text, [
-                "bom dia",
-                "boa tarde",
-                "boa noite",
-                "oi",
-                "ola",
-                "e ai",
-                "tudo bem",
-                "tudo bom"
-            ])
-        ) {
-            const hour = new Date().getHours();
-
-            let greeting;
-
-            if (hour < 12) {
-                greeting = "Bom dia";
-            } else if (hour < 18) {
-                greeting = "Boa tarde";
-            } else {
-                greeting = "Boa noite";
-            }
-
-            return greeting + "! " +
-                (name ? name + ", " : "") +
-                random([
-                    "tudo ótimo por aqui!",
-                    "estou congelando de felicidade!",
-                    "pronto para uma aventura!",
-                    "sobrevivendo à vida de pinguim!"
-                ]);
-        }
-
-        if (
-            includesAny(text, [
-                "obrigado",
-                "obrigada",
-                "valeu",
-                "agradeco"
-            ])
-        ) {
-            return "Por nada! Aceito agradecimentos " +
-                   "em forma de peixe. 😁";
-        }
-
-        if (
-            includesAny(text, [
-                "tchau",
-                "ate mais",
-                "vou embora",
-                "adeus",
-                "falou"
-            ])
-        ) {
-            return random(phrases.goodbye);
-        }
-
-        if (
-            includesAny(text, [
-                "amor",
-                "namorada",
-                "namorado",
-                "casar"
-            ])
-        ) {
-            return "Meu único amor verdadeiro é o oceano. " +
-                   "E talvez aquele peixe que vi ontem.";
-        }
-
-        if (
-            includesAny(text, [
-                "voce e inteligente",
-                "voce e burro",
-                "inteligencia artificial",
-                "voce e uma ia",
-                "voce e um robo"
-            ])
-        ) {
-            return "Sou um personagem programado com " +
-                   "respostas prontas. Mas minha confiança " +
-                   "é 100% genuína.";
-        }
-
-        if (
-            includesAny(text, [
-                "clima",
-                "tempo hoje",
-                "esta frio",
-                "esta calor",
-                "temperatura"
-            ])
-        ) {
-            return "Aqui está sempre fresquinho! " +
-                   "Não tenho acesso à previsão do tempo " +
-                   "real, mas posso garantir que meu gelo " +
-                   "é de ótima qualidade.";
-        }
-
-        if (
-            includesAny(text, [
-                "ajuda",
-                "o que voce faz",
-                "como funciona",
-                "comandos"
-            ])
-        ) {
-            return "Você pode clicar em mim, oferecer um peixe, " +
-                   "me fazer dançar ou conversar comigo. " +
-                   "Também posso passear sozinho!";
-        }
-
-        if (
-            includesAny(text, [
-                "chato",
-                "idiota",
-                "bobo",
-                "feio",
-                "ruim"
-            ])
-        ) {
-            return random([
-                "Nossa! E eu achando que éramos amigos...",
-                "Vou anotar isso no meu diário de pinguim.",
-                "Tudo bem. Mas continuo sendo mais fofo que você.",
-                "Esse comentário foi congelado por falta de graça."
-            ]);
-        }
-
-        if (
-            includesAny(text, [
-                "legal",
-                "fofo",
-                "bonito",
-                "lindo",
-                "adoro",
-                "gosto de voce"
-            ])
-        ) {
-            return random([
-                "Eu sei! Mas é bom ouvir de vez em quando. 😎",
-                "Awn! Agora fiquei todo emplumado!",
-                "Você também é legal. Mas não espalha!",
-                "Obrigado! Meu estilista é a natureza."
-            ]);
-        }
-
-        if (
-            includesAny(text, [
-                "futebol",
-                "corinthians",
-                "palmeiras",
-                "sao paulo",
-                "flamengo"
-            ])
-        ) {
-            return "Futebol? Prefiro patinação no gelo! " +
-                   "Mas respeito sua paixão por esportes.";
-        }
-
-        if (
-            includesAny(text, [
-                "hora",
-                "que horas sao"
-            ])
-        ) {
-            return "Pelo relógio deste navegador, agora são " +
-                   new Date().toLocaleTimeString("pt-BR", {
-                       hour: "2-digit",
-                       minute: "2-digit"
-                   }) + ".";
-        }
-
-        if (
-            includesAny(text, [
-                "data",
-                "que dia e hoje",
-                "dia de hoje"
-            ])
-        ) {
-            return "A data deste navegador é " +
-                   new Date().toLocaleDateString("pt-BR") +
-                   ". Até os pinguins precisam se organizar!";
-        }
-
-        return random([
-            "Interessante... vou pensar nisso enquanto procuro peixes.",
-            "Não sei responder tudo, mas posso dançar muito bem.",
-            "Meu cérebro de pinguim não processou essa pergunta.",
-            "Pode explicar de outro jeito? Estou distraído com o gelo.",
-            "Boa pergunta! Vou consultar meu departamento de peixes.",
-            "Ainda não fui programado para responder isso.",
-            "Hmm... essa pergunta congelou meus circuitos.",
-            "Não tenho certeza. Mas tenho certeza de que estou com fome."
-        ]);
-    }
-
-    /* =====================================================
-       FORMULÁRIO DE CONVERSA
-    ===================================================== */
-
-    chatForm.addEventListener("submit", function (event) {
+character.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-
-        if (tux.paused) {
-            say("Estou de folga! Despausa para conversar comigo.");
-            return;
-        }
-
-        const message = safeText(chatInput.value);
-
-        if (!message) {
-            return;
-        }
-
-        registerInteraction();
-
-        tux.chatHistory.push({
-            message: message,
-            time: Date.now()
-        });
-
-        /*
-         * Mantemos somente o histórico desta sessão.
-         * Ele não é enviado para nenhum servidor.
-         */
-
-        if (tux.chatHistory.length > 20) {
-            tux.chatHistory.shift();
-        }
-
-        const response = answerQuestion(message);
-
-        say(response, 8000);
-
-        chatInput.value = "";
-
-        surprise();
-
-        if (tux.hunger >= 5) {
-            setMood("Mal-humorado");
-        }
-    });
-
-    /* =====================================================
-       COMPORTAMENTO AUTÔNOMO
-    ===================================================== */
-
-    function autonomousStep() {
-        if (tux.paused || document.hidden) {
-            return;
-        }
-
-        const now = Date.now();
-
-        const inactiveFor =
-            now - tux.lastInteraction;
-
-        /*
-         * Se o visitante estiver inativo, Tux comenta.
-         * O intervalo é limitado para não ficar repetitivo.
-         */
-
-        if (
-            inactiveFor > 45000 &&
-            now - tux.lastSpontaneousTalk > 35000
-        ) {
-            say(
-                random([
-                    "Ei... você ainda está aí?",
-                    "Está tudo tão silencioso. Até os peixes sumiram.",
-                    "Vou começar a conversar comigo mesmo.",
-                    "Se você estiver aí, pisque. Ou clique.",
-                    "Silêncio detectado. Ativando modo filósofo."
-                ])
-            );
-
-            setMood("Entediado");
-
-            return;
-        }
-
-        const roll = Math.random();
-
-        if (roll < 0.23) {
-            moveTux();
-
-            return;
-        }
-
-        if (roll < 0.36) {
-            setMood("Curioso");
-
-            sayRandom("idle");
-
-            return;
-        }
-
-        if (roll < 0.46) {
-            setMood("Sonolento");
-
-            character.classList.add("sleeping");
-
-            tux.action = "sleeping";
-
-            updateStatus("Tux está tirando uma soneca");
-
-            setTimeout(function () {
-                if (tux.paused) {
-                    return;
-                }
-
-                character.classList.remove("sleeping");
-
-                tux.action = "idle";
-
-                setMood("Curioso");
-
-                updateStatus("Tux está acordado");
-            }, 4000);
-
-            return;
-        }
-
-        if (roll < 0.56) {
-            dance();
-
-            return;
-        }
-
-        if (roll < 0.69) {
-            showFish();
-
-            setMood("Faminto");
-
-            sayRandom("hungry");
-
-            return;
-        }
-
-        if (roll < 0.77) {
-            setMood("Mal-humorado");
-
-            sayRandom("grumpy");
-
-            return;
-        }
-
-        if (roll < 0.88) {
-            spawnReaction(random(["✨", "💭", "❄️"]));
-
-            say(
-                random([
-                    "Estou observando a paisagem.",
-                    "A natureza é incrível. Especialmente os peixes.",
-                    "Será que existe vida inteligente fora do gelo?",
-                    "Acabei de ter uma ideia. Esqueci qual era."
-                ])
-            );
-
-            return;
-        }
-
-        /*
-         * Às vezes ele simplesmente fica quieto.
-         * Isso ajuda a dar a sensação de autonomia.
-         */
-
-        tux.action = "idle";
-
-        updateStatus("Tux está explorando o ambiente");
+        handleCharacterInteraction();
     }
+});
 
-    function startAutonomy() {
-        clearInterval(tux.timers.autonomous);
+/* =====================================================
+   FORMULÁRIO DE CONVERSA
+===================================================== */
 
-        tux.timers.autonomous = setInterval(
-            autonomousStep,
-            7000
-        );
+chatForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-        clearInterval(tux.timers.fish);
+    const message = chatInput.value.trim();
 
-        tux.timers.fish = setInterval(function () {
-            if (
-                !tux.paused &&
-                !document.hidden &&
-                Math.random() < 0.3
-            ) {
-                showFish();
-            }
-        }, 16000);
-    }
-
-    /* =====================================================
-       PAUSAR E RETOMAR
-    ===================================================== */
-
-    function pauseTux() {
-        tux.paused = !tux.paused;
-
-        stage.classList.toggle("is-paused", tux.paused);
-
-        if (tux.paused) {
-            pauseButton.textContent = "▶️ Retomar Tux";
-
-            statusText.textContent = "Tux está de folga";
-
-            statusDot.classList.add("paused");
-
-            character.classList.remove(
-                "walking",
-                "dancing",
-                "surprised"
-            );
-
-            say(
-                "Finalmente! Uma pausa. " +
-                "Não me chamem, a menos que seja para comer."
-            );
-
-        } else {
-            pauseButton.textContent = "⏸️ Pausar Tux";
-
-            statusText.textContent = "Tux voltou à ativa";
-
-            statusDot.classList.remove("paused");
-
-            tux.lastAction = Date.now();
-
-            say(
-                "Voltei! O que eu perdi? " +
-                "Espero que não tenham comido meus peixes."
-            );
-        }
-    }
-
-    pauseButton.addEventListener("click", pauseTux);
-
-    danceButton.addEventListener("click", function () {
-        registerInteraction();
-        dance();
-    });
-
-    sleepButton.addEventListener("click", function () {
-        registerInteraction();
-        sleep();
-    });
-
-    talkButton.addEventListener("click", function () {
-        if (tux.paused) {
-            say("Estou de folga! Despausa para conversar.");
-            return;
-        }
-
+    if (!message) {
+        say("Escreva alguma coisa antes de enviar! 😺", 2500);
         chatInput.focus();
-
-        say(
-            "Manda a pergunta! Só não vale perguntar " +
-            onde escondi meu estoque de peixes."
-        );
-    });
-
-    /* =====================================================
-       VISIBILIDADE DA PÁGINA
-    ===================================================== */
-
-    document.addEventListener("visibilitychange", function () {
-        if (document.hidden) {
-            return;
-        }
-
-        tux.lastAction = Date.now();
-
-        if (!tux.paused) {
-            updateStatus("Tux percebeu que você voltou");
-
-            if (
-                Date.now() - tux.lastInteraction > 30000
-            ) {
-                say(
-                    "Olha só quem voltou! " +
-                    "Achei que tinha ido pescar."
-                );
-            }
-        }
-    });
-
-    /* =====================================================
-       RESPEITAR REDIMENSIONAMENTO
-    ===================================================== */
-
-    window.addEventListener("resize", function () {
-        const stageWidth = stage.clientWidth;
-
-        const currentLeft =
-            parseFloat(character.style.left) ||
-            stageWidth / 2;
-
-        const margin = character.offsetWidth / 2;
-
-        const newLeft = clamp(
-            currentLeft,
-            margin,
-            stageWidth - margin
-        );
-
-        character.style.left = newLeft + "px";
-    });
-
-    /* =====================================================
-       INICIALIZAÇÃO
-    ===================================================== */
-
-    function init() {
-        makeSnow();
-
-        hideFish();
-
-        loadMemory();
-
-        updateStats();
-
-        if (tux.nickname) {
-            say(
-                "Olha só, " + tux.nickname +
-                "! Você voltou! Eu estava cuidando do gelo."
-            );
-        } else {
-            sayRandom("greetings");
-        }
-
-        tux.lastInteraction = Date.now();
-
-        startAutonomy();
-
-        /*
-         * O primeiro peixe aparece depois de alguns segundos,
-         * para o visitante descobrir que pode alimentar o Tux.
-         */
-
-        setTimeout(function () {
-            if (!tux.paused && !document.hidden) {
-                showFish();
-            }
-        }, 5000);
-
-        /*
-         * Guarda a data da visita atual quando houver
-         * consentimento para memória local.
-         */
-
-        tux.lastVisit = new Date().toISOString();
-
-        if (memoryConsent.checked) {
-            writeMemory();
-        }
+        return;
     }
 
-    init();
+    registerInteraction();
 
-})();
+    const response = getChatResponse(message);
+
+    state.annoyance = Math.max(0, state.annoyance - 5);
+    updateMood();
+
+    if (/\b(danca|dancar|dancando|dancinha)\b/i.test(message)) {
+        clearCharacterActions();
+        setExpression("happy");
+        character.classList.add("is-dancing");
+
+        say(response, 3500);
+
+        state.actionTimeout = setTimeout(() => {
+            character.classList.remove("is-dancing");
+            setExpression("idle");
+        }, 1600);
+    } else {
+        if (state.annoyance < 70) {
+            setExpression("happy");
+        } else {
+            setExpression("grumpy");
+        }
+
+        say(response, 4500);
+
+        clearTimeout(state.actionTimeout);
+        state.actionTimeout = setTimeout(() => {
+            if (!state.isSleeping) {
+                setExpression("idle");
+            }
+        }, 1800);
+    }
+
+    chatInput.value = "";
+    chatInput.focus();
+});
+
+/* =====================================================
+   REAÇÃO AO RETORNAR À ABA
+===================================================== */
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        statusText.textContent = "Em pausa";
+        return;
+    }
+
+    checkDayNightCycle();
+    state.lastInteraction = Date.now();
+});
+
+/* =====================================================
+   AJUSTE DE POSIÇÃO AO REDIMENSIONAR
+===================================================== */
+
+window.addEventListener("resize", () => {
+    if (document.hidden) return;
+
+    const stageWidth = stage.clientWidth;
+    const characterWidth = character.offsetWidth;
+    const margin = Math.max(characterWidth / 2 + 8, 20);
+
+    const currentLeft = parseFloat(character.style.left);
+
+    if (!Number.isFinite(currentLeft)) return;
+
+    const boundedLeft = Math.min(
+        Math.max(currentLeft, margin),
+        Math.max(margin, stageWidth - margin)
+    );
+
+    character.style.left = `${boundedLeft}px`;
+});
+
+/* =====================================================
+   INICIALIZAÇÃO
+===================================================== */
+
+function initSRisk() {
+    setExpression("idle");
+    updateMood();
+    checkDayNightCycle();
+
+    say(getGreeting(), 5000);
+
+    moveAutonomously();
+
+    state.autonomousInterval = setInterval(() => {
+        performAutonomousAction();
+    }, 7000);
+
+    // Atualiza o ciclo de dia e noite periodicamente.
+    setInterval(() => {
+        checkDayNightCycle();
+    }, 60000);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initSRisk, { once: true });
+} else {
+    initSRisk();
+}
 </script>
-
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
